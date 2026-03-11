@@ -8,6 +8,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "."))
 try:
     from neonize.client import NewClient
     from neonize import events
+    from neonize.types import CHROME  # Importamos el tipo de cliente
     from core.ai_handler import AIHandler
 except ImportError as e:
     print(f"❌ Error de importación: {e}")
@@ -44,10 +45,12 @@ phone = os.getenv("PHONE_NUMBER")
 
 if not os.path.exists("session.db"):
     print(f"🔗 Vinculando {phone}...")
-    # 1. Teléfono
-    # 2. show_qr (0 = False) -> Esto era lo que esperaba el entero
-    # 3. Callback
-    client.PairPhone(phone, 0, mi_callback)
+    # Firma detectada por el error:
+    # 1. JID (phone)
+    # 2. show_qr (0/False)
+    # 3. client_type (Aquí esperaba algo con .name, como CHROME)
+    # 4. on_wait_code (Tu función)
+    client.PairPhone(phone, 0, CHROME, mi_callback)
 
 print("📡 Conectando...")
 client.connect()
