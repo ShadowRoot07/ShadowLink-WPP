@@ -16,11 +16,6 @@ except ImportError as e:
 load_dotenv()
 ai = AIHandler()
 
-# Función de callback para el código
-def on_qr(client, qr):
-    # No usaremos QR, pero la librería a veces lo requiere definido
-    pass
-
 client = NewClient("session.db")
 
 @client.event(events.MessageEv)
@@ -42,11 +37,11 @@ def handle_message(client: NewClient, message: events.MessageEv):
 
 phone = os.getenv("PHONE_NUMBER")
 
-# Si no hay sesión, solicitamos el código de vinculación
 if not os.path.exists("session.db"):
-    print(f"🔗 Solicitando código de vinculación para: {phone}")
-    # En la versión 0.3.15, el método suele ser este:
-    client.pair_code(phone, on_wait_code=lambda _, code: print(f"\n✅ TU CÓDIGO: {code}\n"))
+    print(f"🔗 Intentando vincular con PairPhone para: {phone}")
+    # Usamos el nombre exacto que sugirió el error
+    # En Neonize moderno, PairPhone devuelve el código o usa un callback
+    client.PairPhone(phone, on_wait_code=lambda _, code: print(f"\n⚡ CÓDIGO DE VINCULACIÓN: {code}\n"))
 
 print("📡 Iniciando conexión...")
 client.connect()
