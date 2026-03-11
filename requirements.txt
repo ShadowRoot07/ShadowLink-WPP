@@ -1,0 +1,9 @@
+discord.py
+google-generativeai
+psycopg2-binary
+playwright
+playwright-stealth
+python-dotenv
+neonize
+protobuf==4.25.3
+
