@@ -7,7 +7,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "."))
 
 try:
     from neonize.client import NewClient
-    # Importamos el módulo de eventos completo
     from neonize import events
     from core.ai_handler import AIHandler
 except ImportError as e:
@@ -24,15 +23,15 @@ def on_wait_code(client, code):
 
 client = NewClient("session.db")
 
-# Usamos la referencia directa desde el módulo 'events'
-@client.event(events.MessageEvent)
-def handle_message(client: NewClient, message: events.MessageEvent):
+# Usamos el nombre que la librería sugirió: MessageEv
+@client.event(events.MessageEv)
+def handle_message(client: NewClient, message: events.MessageEv):
     try:
-        # Extraer texto de forma segura según la versión 0.3.x
-        msg_content = message.Message
+        # En esta versión, el contenido suele estar en message.Message
+        msg = message.Message
         text = (
-            getattr(msg_content, "conversation", "") or 
-            getattr(msg_content.extendedTextMessage, "text", "") or
+            getattr(msg, "conversation", "") or 
+            getattr(msg.extendedTextMessage, "text", "") or
             ""
         )
         
@@ -48,6 +47,10 @@ def handle_message(client: NewClient, message: events.MessageEvent):
         print(f"⚠️ Error en handle_message: {e}")
 
 phone = os.getenv("PHONE_NUMBER")
+
+if not phone:
+    print("❌ ERROR: PHONE_NUMBER no configurado en Secrets.")
+    sys.exit(1)
 
 if not os.path.exists("session.db"):
     print(f"🔗 Generando enlace para: {phone}...")
