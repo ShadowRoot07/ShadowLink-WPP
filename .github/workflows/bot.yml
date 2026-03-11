@@ -20,12 +20,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          python -m playwright install chromium --with-deps
+          # Comentamos esto temporalmente para que no falle
+          # python -m playwright install chromium --with-deps
 
       - name: Run ShadowLink
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           PHONE_NUMBER: ${{ secrets.PHONE_NUMBER }}
         run: python src/main.py
 
