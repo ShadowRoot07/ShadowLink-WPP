@@ -1,22 +1,16 @@
 import os
 import sys
+from dotenv import load_dotenv
 
 # Ajuste de rutas
 directorio_actual = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(directorio_actual)
 
-try:
-    from neonize.client import NewClient
-    # Intentamos importar de forma más abierta para evitar el error de nombre
-    import neonize.events as events
-    from core.ai_handler import AIHandler
-    from dotenv import load_dotenv
-except ImportError as e:
-    print(f"❌ Error de importación crítica: {e}")
-    sys.exit(1)
+from neonize.client import NewClient
+from neonize.events import Event, MessageEvent
+from core.ai_handler import AIHandler
 
 load_dotenv()
-
 ai = AIHandler()
 
 def on_wait_code(client, code):
@@ -24,42 +18,22 @@ def on_wait_code(client, code):
     print(f"   CÓDIGO DE VINCULACIÓN: {code}")
     print("█" * 40 + "\n")
 
-# Cambiamos la firma de la función para que acepte el evento genérico
-def on_message(client, message):
-    try:
-        # Intentamos extraer el texto buscando en los campos comunes
-        msg_content = message.Message
-        text = (
-            msg_content.conversation or 
-            msg_content.extendedTextMessage.text or 
-            ""
-        )
-        
-        if not text or message.Info.IsFromMe:
-            return
-
-        sender = message.Info.Sender.User
-        chat_id = message.Info.Chat
-
-        print(f"📩 Mensaje de {sender}: {text}")
-
-        respuesta = ai.ask(text)
-        client.send_message(chat_id, respuesta)
-    except Exception as e:
-        # Si algo falla al procesar el mensaje, lo ignoramos para no tumbar el bot
-        pass
-
+# Nueva forma de registrar eventos en neonize moderno
 client = NewClient("session.db")
 
-# Registramos el evento de mensaje usando el nombre del atributo interno
-# que suele ser 'Message' o 'on_message'
-client.event_handler.register(on_message)
+@client.event(MessageEvent)
+def on_message(client: NewClient, message: MessageEvent):
+    text = message.Message.conversation or message.Message.extendedTextMessage.text
+    if not text or message.Info.IsFromMe:
+        return
+
+    chat_id = message.Info.Chat
+    print(f"📩 Mensaje recibido: {text}")
+
+    respuesta = ai.ask(text)
+    client.send_message(chat_id, respuesta)
 
 phone = os.getenv("PHONE_NUMBER")
-
-if not phone:
-    print("❌ ERROR: PHONE_NUMBER no configurado.")
-    sys.exit(1)
 
 if not os.path.exists("session.db"):
     print(f"🔗 Generando enlace para: {phone}...")

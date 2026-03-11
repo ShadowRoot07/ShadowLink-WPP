@@ -1,9 +1,9 @@
 discord.py
-google-generativeai
+google-genai
 psycopg2-binary
 playwright
 playwright-stealth
 python-dotenv
-neonize==0.0.7
+neonize
 protobuf
 

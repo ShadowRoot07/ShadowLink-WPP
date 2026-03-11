@@ -1,20 +1,23 @@
-import google.generativeai as genai
+from google import genai
 import os
 
 class AIHandler:
     def __init__(self):
-        genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-        # Usamos el 2.0-flash que ya sabemos que te funciona
-        self.model = genai.GenerativeModel('gemini-2.0-flash')
+        # La nueva librería usa una estructura distinta
+        self.client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+        self.model_id = "gemini-2.0-flash"
 
     def ask(self, prompt, history=""):
         instruction = (
-            "Eres ShadowLink, un asistente Cyberpunk en WhatsApp. "
-            "Estilo: Directo, técnico, verde neón. Responde en español.\n"
-            f"Historial previo: {history}"
+            "Eres ShadowLink, asistente Cyberpunk en WhatsApp. "
+            "Estilo: Directo, técnico, verde neón. Responde en español."
         )
         try:
-            response = self.model.generate_content(f"{instruction}\n\nUsuario: {prompt}")
+            # Nueva forma de llamar a la generación de contenido
+            response = self.client.models.generate_content(
+                model=self.model_id,
+                contents=f"{instruction}\n\nUsuario: {prompt}"
+            )
             return response.text
         except Exception as e:
             return f"❌ Error en la matriz: {e}"
