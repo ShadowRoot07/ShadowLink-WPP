@@ -5,5 +5,5 @@ playwright
 playwright-stealth
 python-dotenv
 neonize
-protobuf==4.25.3
+protobuf
 
