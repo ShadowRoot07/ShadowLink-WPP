@@ -8,7 +8,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "."))
 try:
     from neonize.client import NewClient
     from neonize import events
-    from neonize.types import CHROME  # Importamos el tipo de cliente
     from core.ai_handler import AIHandler
 except ImportError as e:
     print(f"❌ Error de importación: {e}")
@@ -17,9 +16,15 @@ except ImportError as e:
 load_dotenv()
 ai = AIHandler()
 
+# Creamos un objeto que simule ser el tipo de cliente
+class FakeType:
+    def __init__(self, name):
+        self.name = name
+
+# Esta es la función que recibirá el código
 def mi_callback(client, code):
     print("\n" + "⚡" * 20)
-    print(f" CÓDIGO DE VINCULACIÓN: {code}")
+    print(f" TU CÓDIGO DE WHATSAPP: {code}")
     print("⚡" * 20 + "\n")
 
 client = NewClient("session.db")
@@ -45,12 +50,18 @@ phone = os.getenv("PHONE_NUMBER")
 
 if not os.path.exists("session.db"):
     print(f"🔗 Vinculando {phone}...")
-    # Firma detectada por el error:
-    # 1. JID (phone)
-    # 2. show_qr (0/False)
-    # 3. client_type (Aquí esperaba algo con .name, como CHROME)
-    # 4. on_wait_code (Tu función)
-    client.PairPhone(phone, 0, CHROME, mi_callback)
+    # Creamos los objetos que la librería quiere inspeccionar
+    # client_type y client_name (ambos necesitan .name según el log anterior)
+    tipo = FakeType("Chrome")
+    nombre = FakeType("Linux")
+    
+    # Intentamos pasar los 4 argumentos: JID, show_qr, tipo, callback
+    # Si la librería pide 5, usaremos 'nombre' también, pero probemos así:
+    try:
+        client.PairPhone(phone, 0, tipo, mi_callback)
+    except TypeError:
+        # Si falla por falta de argumentos, le damos el 5to (nombre)
+        client.PairPhone(phone, 0, tipo, nombre, mi_callback)
 
 print("📡 Conectando...")
 client.connect()
