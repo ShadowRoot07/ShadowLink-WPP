@@ -4,6 +4,6 @@ psycopg2-binary
 playwright
 playwright-stealth
 python-dotenv
-neonize
+neonize==0.0.7
 protobuf
 
