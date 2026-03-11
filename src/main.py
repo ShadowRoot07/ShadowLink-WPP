@@ -16,46 +16,38 @@ except ImportError as e:
 load_dotenv()
 ai = AIHandler()
 
-def on_wait_code(client, code):
-    print("\n" + "█" * 40)
-    print(f"   CÓDIGO DE VINCULACIÓN: {code}")
-    print("█" * 40 + "\n")
+# Función de callback para el código
+def on_qr(client, qr):
+    # No usaremos QR, pero la librería a veces lo requiere definido
+    pass
 
 client = NewClient("session.db")
 
-# Usamos el nombre que la librería sugirió: MessageEv
 @client.event(events.MessageEv)
 def handle_message(client: NewClient, message: events.MessageEv):
     try:
-        # En esta versión, el contenido suele estar en message.Message
         msg = message.Message
-        text = (
-            getattr(msg, "conversation", "") or 
-            getattr(msg.extendedTextMessage, "text", "") or
-            ""
-        )
+        text = getattr(msg, "conversation", "") or \
+               getattr(msg.extendedTextMessage, "text", "") or ""
         
         if not text or message.Info.IsFromMe:
             return
 
         chat_id = message.Info.Chat
-        print(f"📩 Mensaje recibido: {text}")
-
+        print(f"📩 Mensaje: {text}")
         respuesta = ai.ask(text)
         client.send_message(chat_id, respuesta)
     except Exception as e:
-        print(f"⚠️ Error en handle_message: {e}")
+        print(f"⚠️ Error: {e}")
 
 phone = os.getenv("PHONE_NUMBER")
 
-if not phone:
-    print("❌ ERROR: PHONE_NUMBER no configurado en Secrets.")
-    sys.exit(1)
-
+# Si no hay sesión, solicitamos el código de vinculación
 if not os.path.exists("session.db"):
-    print(f"🔗 Generando enlace para: {phone}...")
-    client.link_with_code(phone, on_wait_code)
+    print(f"🔗 Solicitando código de vinculación para: {phone}")
+    # En la versión 0.3.15, el método suele ser este:
+    client.pair_code(phone, on_wait_code=lambda _, code: print(f"\n✅ TU CÓDIGO: {code}\n"))
 
-print("📡 Conectando a WhatsApp...")
+print("📡 Iniciando conexión...")
 client.connect()
 
