@@ -1,9 +1,4 @@
-discord.py
 google-genai
-psycopg2-binary
-playwright
-playwright-stealth
 python-dotenv
 neonize
-protobuf
 
