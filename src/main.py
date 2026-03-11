@@ -16,6 +16,11 @@ except ImportError as e:
 load_dotenv()
 ai = AIHandler()
 
+def mi_callback(client, code):
+    print("\n" + "⚡" * 20)
+    print(f" CÓDIGO: {code}")
+    print("⚡" * 20 + "\n")
+
 client = NewClient("session.db")
 
 @client.event(events.MessageEv)
@@ -38,11 +43,11 @@ def handle_message(client: NewClient, message: events.MessageEv):
 phone = os.getenv("PHONE_NUMBER")
 
 if not os.path.exists("session.db"):
-    print(f"🔗 Intentando vincular con PairPhone para: {phone}")
-    # Usamos el nombre exacto que sugirió el error
-    # En Neonize moderno, PairPhone devuelve el código o usa un callback
-    client.PairPhone(phone, on_wait_code=lambda _, code: print(f"\n⚡ CÓDIGO DE VINCULACIÓN: {code}\n"))
+    print(f"🔗 Vinculando {phone}...")
+    # Pasamos los argumentos sin nombre (por posición)
+    # 1. Teléfono, 2. Función callback
+    client.PairPhone(phone, mi_callback)
 
-print("📡 Iniciando conexión...")
+print("📡 Conectando...")
 client.connect()
 
