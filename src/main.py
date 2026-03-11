@@ -18,7 +18,7 @@ ai = AIHandler()
 
 def mi_callback(client, code):
     print("\n" + "⚡" * 20)
-    print(f" CÓDIGO: {code}")
+    print(f" CÓDIGO DE VINCULACIÓN: {code}")
     print("⚡" * 20 + "\n")
 
 client = NewClient("session.db")
@@ -44,9 +44,10 @@ phone = os.getenv("PHONE_NUMBER")
 
 if not os.path.exists("session.db"):
     print(f"🔗 Vinculando {phone}...")
-    # Pasamos los argumentos sin nombre (por posición)
-    # 1. Teléfono, 2. Función callback
-    client.PairPhone(phone, mi_callback)
+    # 1. Teléfono
+    # 2. show_qr (0 = False) -> Esto era lo que esperaba el entero
+    # 3. Callback
+    client.PairPhone(phone, 0, mi_callback)
 
 print("📡 Conectando...")
 client.connect()
